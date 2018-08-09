@@ -220,12 +220,7 @@ global {
 		// Next move to the shortest path between each point in the graph
 		matrix allPairs <- all_pairs_shortest_path (roadNetwork);
 		
-		//-------------------------------------------Dummy-----------------------------------------------------
-		loop i from: 0 to: length(roadNetwork.vertices) - 1 {
-			create dummy{
-				location <-point(roadNetwork.vertices[i]); 
-				}
-			}
+		
 		
 		// --------------------------------------------Trash Bins--------------------------------------------
 		
@@ -234,10 +229,10 @@ global {
 			type <- "litter";
 			decreaseTrashAmount<-false;
 			// Delete trashBin outside the area of interest 		
-			float Xmax <- (list(dummy) max_of (each.location.x));
-			float Ymax <- (list(dummy) max_of (each.location.y));
-			float Xmin <- (list(dummy) min_of (each.location.x));
-			float Ymin <- (list(dummy) min_of (each.location.y));
+			float Xmax <- (list(pheromoneRoad) max_of (each.location.x));
+			float Ymax <- (list(pheromoneRoad) max_of (each.location.y));
+			float Xmin <- (list(pheromoneRoad) min_of (each.location.x));
+			float Ymin <- (list(pheromoneRoad) min_of (each.location.y));
 			if !((location.x between(Xmin,Xmax)) and (location.y between(Ymin,Ymax))){
 				do die;
 				}							
@@ -369,9 +364,6 @@ global {
 			}
 		}
 		
-		ask dummy {
-			do die;			
-		}
 			
 		create controller;
 		
