@@ -28,8 +28,6 @@ global{
 }
 
 
-species dummy{}
-
 species controller{
  reflex performanceControl{
  	trashPerTime <- sum(list(trashBin) collect each.trash);
