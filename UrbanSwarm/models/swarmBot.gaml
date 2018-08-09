@@ -1,15 +1,14 @@
 /**
  *  theCity
  *  Author: alfeo
- *  Description: Model containing 
- * TODO: integration Dylan model, headless, stop collision avoidance and recharge. 
+ *  Description: 
  */
 
 model swarmBot
 import "./../models/UrbanSwarm_main.gaml"
 
 global{
-		//-----------------------------------------------------SwarmBot Parameters--------------------------------------------------
+	//-----------------------------------------------------SwarmBot Parameters--------------------------------------------------
 	int truckOrRobots <- 1; //0= truck, 1 =robot
 	int robotNum <- 75;										
 	float singlePheromoneMark <- 0.5;
@@ -147,7 +146,7 @@ species truck skills:[moving] {
 		if (target != location) { 
 			list<trashBin> closeTrashBin <- trashBin at_distance 50;
 	
-			ask closeTrashBin{ //}with_max_of(each.trash){	
+			ask closeTrashBin{ 	
 						self.trash <- 0;	
 						self.decreaseTrashAmount <- true;	
 			}						
@@ -155,7 +154,7 @@ species truck skills:[moving] {
 		else{
 			if(currentRoad<length(roadNetwork.vertices)-1){
 				currentRoad <- currentRoad + 1;
-				target <- point(roadNetwork.vertices[currentRoad]);//point(toClean[currentRoad]);
+				target <- point(roadNetwork.vertices[currentRoad]);
 				source <- location;	
 			}
 			else{
@@ -184,11 +183,8 @@ species robot skills:[moving] {
 	
 	int lastDistanceToDeposit;
 	
-	int timeStop; //TODO
-	
 	bool lowBattery;	
 	bool carrying;
-	bool stop; //TODO
 	
 	
 	aspect base {
