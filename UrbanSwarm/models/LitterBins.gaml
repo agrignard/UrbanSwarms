@@ -18,65 +18,6 @@ global {
 	float trash_per_day <- 8.42;
 }
 
-species building schedules: [] {
-	string usage;
-	string scale;
-	float nbFloors<-1.0;//1 by default if no value is set.
-	int depth;	
-	float area;
-	float perimeter;
-	
-	action createPop (int nb, building bd,bool fromGrid){
-	  create people number: nb { 
-  		living_place <- bd;
-		location <- any_location_in (living_place);
-		scale <- bd.scale;	
-		speed <- min_speed + rnd (max_speed - min_speed);
-		initialSpeed <-speed;
-		time_to_work <- min_work_start + rnd (max_work_start - min_work_start) ;
-		time_to_lunch <- min_lunch_start + rnd (max_lunch_start - min_lunch_start) ;
-		time_to_rework <- min_rework_start + rnd (max_rework_start - min_rework_start) ;
-		time_to_dinner <- min_dinner_start + rnd (max_dinner_start - min_dinner_start) ;
-		time_to_sleep <- min_work_end + rnd (max_work_end - min_work_end) ;
-		working_place <- one_of(building  where (each.usage="O" and each.scale=scale)) ;
-		eating_place <- one_of(amenity where (each.scale=scale )) ;
-		dining_place <- one_of(amenity where (each.scale=scale )) ;
-		objective <- "resting";
-		fromTheGrid<-fromGrid;  
-	  }
-	}
-	
-	aspect base {	
-     	draw shape color: rgb(50,50,50,125);
-	}
-	aspect realistic {	
-     	draw shape color: rgb(75,75,75) depth:depth;
-	}
-	aspect usage{
-		draw shape color: color_map[usage];
-	}
-	aspect scale{
-		draw shape color: color_map[scale];
-	}
-	
-	aspect demoScreen{
-		if(toggle1=1){
-			draw shape color: color_map[usage];
-		}
-		if(toggle1=2){
-			if(usage="O"){
-			  draw shape color: color_map[scale];
-			}
-			
-		}
-		if(toggle1=3){
-			if(usage="R"){
-			  draw shape color: color_map[scale];
-			}
-		}
-	}
-}
-
 
 species amenity parent:building {
 	int id;
@@ -185,7 +126,6 @@ species amenity parent:building {
 
 }
 
-
 species Litter { 
 	
 	rgb circle_color <- rgb(0,255,0);
@@ -198,17 +138,7 @@ species Litter {
 		circle_color <- new_color;
 		
 	}
-	
-	/*
-	action add_trash {
-		total_trash<-total_trash+1;
 		
-		red_color <- int(0.0 + (255.0/float(max_trash))*total_trash);
-		green_color <- int(255.0 - (255.0/float(max_trash))*total_trash);
-		circle_color <- rgb(red_color, green_color, 0);
-	}
-	*/
-	
 	action update_color {
 		red_color <- int(0.0 + (255.0/float(max_trash))*total_trash);
 		green_color <- int(255.0 - (255.0/float(max_trash))*total_trash);
