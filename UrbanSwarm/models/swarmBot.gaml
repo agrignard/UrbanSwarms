@@ -8,9 +8,28 @@
 model swarmBot
 import "./../models/UrbanSwarm_main.gaml"
 
-species dummy{
-	
+global{
+		//-----------------------------------------------------SwarmBot Parameters--------------------------------------------------
+	int truckOrRobots <- 1; //0= truck, 1 =robot
+	int robotNum <- 75;										
+	float singlePheromoneMark <- 0.5;
+	float evaporation <- 0.5;
+	float exploratoryRate <- 0.8;
+	float diffusion <- (1-exploratoryRate) * 0.5;	
+	int rechargingTime <- 0;
+	int collisionAvoidanceTime <- 0;
+	int additionalTrashBin <- 0;
+	float maxTrash <- 121.0;
+	int depositNum <- 3;
+	int carriableTrashAmount <- 15;		
+	int maxBatteryLife <- 720; // 2 h for PEV considering each cycle as 10 seconds in the real world
+	float maxSpeedDist <- 5.5; // about 5.5  m/s for PEV (it can be changed accordingly to different robot specification)
+	graph roadNetwork;	
+	list<int> depositLocation;
 }
+
+
+species dummy{}
 
 species controller{
  reflex performanceControl{

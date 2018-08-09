@@ -13,43 +13,10 @@ import "./../models/swarmBot.gaml"
 //Uncomment line 10, 219, and line 560
 
 global {
-	
-	//----------------------------------------------------SwarmBot Importing File-------------------------------------------------
-	file shape_file_buildings <- file("../includes/City/volpe/Buildings.shp");
-	file shape_file_roads <- file("../includes/City/volpe/Roads.shp");
-	file shape_file_bounds <- file("../includes/City/volpe/Bounds.shp");
-	file shape_file_amenities <- file("../includes/City/volpe/amenities.shp");
-	file shape_file_trashBin <- file("../includes/City/volpe/UrbanSwarm/DPW_LitterBarrels.shp");
-	//geometry shape <- envelope(shape_file_bounds);
-	//-----------------------------------------------------SwarmBot Parameters--------------------------------------------------
-	int truckOrRobots <- 1; //0= truck, 1 =robot
-	int robotNum <- 75;										
-	float singlePheromoneMark <- 0.5;
-	float evaporation <- 0.5;
-	float exploratoryRate <- 0.8;
-	float diffusion <- (1-exploratoryRate) * 0.5;	
-	int rechargingTime <- 0;
-	int collisionAvoidanceTime <- 0;
-	int additionalTrashBin <- 0;
-	float maxTrash <- 121.0;
-	int depositNum <- 3;
-	int carriableTrashAmount <- 15;
-		
-	int maxBatteryLife <- 720; // 2 h for PEV considering each cycle as 10 seconds in the real world
-	float maxSpeedDist <- 5.5; // about 5.5  m/s for PEV (it can be changed accordingly to different robot specification)
-	
-	
-	graph roadNetwork;
-	
-	list<int> depositLocation;
-	
-	//---------------------------------------------------------Performance Measures-----------------------------------------------------------------------------
+		//---------------------------------------------------------Performance Measures-----------------------------------------------------------------------------
 	int trashPerTime;
 	int fullTrashBin;
 	int randomID;
-	
-
-	
 	//-------------------------------------------------------------------Necessary Variables--------------------------------------------------------------------------------------------------
 	
 	//Whether or not the simulation has stopped
@@ -242,7 +209,7 @@ global {
 	    //------------------------------------------SWARMBOT SPECIES-------------------------------------------------------------			
 		
 		// ----------------------------The Roads (459 and 462 are broken)-------------------------------------
-		create pheromoneRoad from: shape_file_roads{
+		create pheromoneRoad from: roads_shapefile{
 			pheromone <- 0.0;
 		}
 		/* 	
@@ -269,7 +236,7 @@ global {
 		
 		// --------------------------------------------Trash Bins--------------------------------------------
 		
-		create trashBin from: shape_file_trashBin{ 	
+		create trashBin from: litter_shapefile{ 	
 			trash <- 0.0;
 			type <- "litter";
 			decreaseTrashAmount<-false;
@@ -728,11 +695,7 @@ species k_node{
 	aspect base {
 		draw circle(120#m) color: circle_color border: rgb(255,255,255);
 	}
-	
-	init {
 		
-	}
-	
 	action set_color(rgb new_color){
 		circle_color <- new_color;
 	}
@@ -752,8 +715,6 @@ experiment selfOrganizedGarbageCollection type: gui {
 	parameter "collisionAvoidanceTime" var: collisionAvoidanceTime min: 0 max: 10 step: 1;
 	parameter "maxTrashPerBin" var: maxTrash min: 1.0 max: 50.0 step: 1.0;
 	parameter "carriableTrashAmount" var: carriableTrashAmount min: 1 max: 50 step: 5;
-	
-	
 	
 	init {
 		list<int> robotNumArray <- [20, 35, 50];
