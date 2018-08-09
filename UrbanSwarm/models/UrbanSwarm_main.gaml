@@ -10,10 +10,8 @@ import "./../models/Parameters.gaml"
 import "./../models/LitterBins.gaml"
 import "./../models/swarmBot.gaml"
 
-//Uncomment line 10, 219, and line 560
-
 global {
-		//---------------------------------------------------------Performance Measures-----------------------------------------------------------------------------
+	//---------------------------------------------------------Performance Measures-----------------------------------------------------------------------------
 	int trashPerTime;
 	int fullTrashBin;
 	int randomID;
@@ -168,7 +166,6 @@ global {
 		fullTrashBin <- 0;
 		randomID <- rnd (10000);
 		//This just creates them randomly with random s
-		//create species:k_node number:k with:(location:{rnd(max_spawn_x),rnd(max_spawn_y),0});
 		create barrel from: litter_shapefile;
 		create table from: table_bound_shapefile;
 		create building from: buildings_shapefile with: [usage::string(read ("Usage")),scale::string(read ("Scale")),nbFloors::1+float(read ("Floors"))]{
@@ -179,10 +176,6 @@ global {
 		create road from: roads_shapefile ;
 		road_graph <- as_edge_graph(road);
 		
-		//Creating all of the road nodes on the corners/intersections of roads
-		loop i from: 0 to: length(road_graph.vertices) - 1  {
-			//create Road_Node with: (location:point(road_graph.vertices[i]));
-		}
 		
 		if(realAmenity = true){
           create amenity from: amenities_shapefile{
@@ -212,14 +205,14 @@ global {
 		create pheromoneRoad from: roads_shapefile{
 			pheromone <- 0.0;
 		}
-		/* 	
+			
 		ask pheromoneRoad[459]{
 			do die;
 		}
 		ask pheromoneRoad[462]{
 			do die;
 		}	
-		*/			
+					
 		
 		// ---------------------------------------The Road Network----------------------------------------------
 		roadNetwork <- as_edge_graph(pheromoneRoad) ;					
@@ -304,7 +297,7 @@ global {
 			}
 			
 			// Final Outcome K-means
-			depositLocation <- depositLocationKmeans;//[211,243,102];
+			depositLocation <- depositLocationKmeans;
 		
 		// ----------------------------------------------The Deposits---------------------------------------------
 		if(truckOrRobots=1){
@@ -335,29 +328,11 @@ global {
 			}		
 		}else{
 			create truck number:1{	
-				/*
-				list<point> roadToClean <- [];
-				ask pheromoneRoad {
-					list<trashBin> closeTrashBin <- trashBin at_distance 20;
-					if(length(trashBin)>1){
-						add point(self.location) to: roadToClean;				
-						} 					
-					} 
-				list<point> intersectionToClean <- [];
-				ask tagRFID {
-					list<trashBin> closeTrashBin <- trashBin at_distance 20;
-					if(length(trashBin)>1){
-						add point(self.location) to: intersectionToClean;				
-						} 					
-					}	
-					
-				toClean <- [roadToClean, intersectionToClean]; 				
-				*/
-				location <- point(roadNetwork.vertices[0]); //point(roadNetwork.vertices[0]); 
+				location <- point(roadNetwork.vertices[0]);  
 				target <- point(roadNetwork.vertices[1]); 
 				source <- location;	
-				speedDist <- 45; // sum(list(toClean) collect each.length)/420; //(ticks corrispondenti ad  un ora e 10) 
-				timeToStart <- 4320;//1;
+				speedDist <- 45;  
+				timeToStart <- 4320;
 				currentRoad <- 1;	
 				}
 		}
