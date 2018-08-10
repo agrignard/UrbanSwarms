@@ -233,7 +233,7 @@ global {
 			float Ymax <- (list(pheromoneRoad) max_of (each.location.y));
 			float Xmin <- (list(pheromoneRoad) min_of (each.location.x));
 			float Ymin <- (list(pheromoneRoad) min_of (each.location.y));
-			if !((location.x between(Xmin,Xmax)) and (location.y between(Ymin,Ymax))){
+			if !((location.x between(Xmin-5,Xmax+5)) and (location.y between(Ymin-5,Ymax+5))){
 				do die;
 				}							
 		}
