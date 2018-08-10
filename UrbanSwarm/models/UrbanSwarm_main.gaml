@@ -313,8 +313,6 @@ global {
 				source <- location;
 				carrying <- false;
 				lowBattery <- false;
-				stop <- false;
-				timeStop <- 0;
 				speedDist <- 1;
 				pheromoneToDiffuse <- 0.0;
 				pheromoneMark <- 0.0;
