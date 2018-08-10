@@ -770,7 +770,16 @@ experiment selfOrganizedGarbageCollection type: gui {
 				species tagRFID aspect: base ;
 				species robot aspect: base ;
 				species deposit aspect: base;	
-				species truck aspect: base ;		
+				species truck aspect: base ;
+		
+		overlay position: { 5, 5 } size: { 240 #px, 680 #px } background: # black transparency: 1.0 border: #black 
+            {
+            	list<string> list_of_existing_species <- list<string>(['species1', 'species2']);
+                loop i from: 0 to: length(list_of_existing_species) -1 {
+                	draw square(10#px) at: { 20#px, (i+1)*20#px } color: #red border: #white;
+                    draw "species"+ i at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 	
+                }    
+            }		
 		}	
 	}
 }
