@@ -778,9 +778,32 @@ experiment selfOrganizedGarbageCollection type: gui {
                 loop i from: 0 to: length(list_of_existing_species) -1 {
                 	draw square(10#px) at: { 20#px, (i+1)*20#px } color: #red border: #white;
                     draw "species"+ i at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 	
-                }    
+                } 
+		
+		/*
+		list<string> list_of_existing_species <- list<string>(['RFID','Deposit','Robot,'Robot[LowBattery]','Robot[Carrying]','TrashBin[Empty]','TrashBin[CarriableTrash]','TrashBin[AlmostFull]','TrashBin[Full]']);
+                loop i from: 0 to: length(list_of_existing_species) -1 {
+                    draw "species "+ i at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 			
+		} 				
+				
+		draw circle(10#px) at: { 120#px, 20#px } color: #green border: #white;
+		draw circle(10#px) at: { 120#px, 2*20#px } color: #blue border: #white;
+		draw circle(10#px) at: { 120#px, 3*20#px } color: #cyan border: #white;
+		draw circle(10#px) at: { 120#px, 4*20#px } color: #cyan border: #white;
+		draw triangle(8#px) at: { 120#px, 4*20#px } color: #purple border: #white;
+		draw circle(10#px) at: { 120#px, 5*20#px } color: #cyan border: #white;
+		draw square(8#px) at: { 120#px, 5*20#px } color: #yellow border: #white;
+		draw circle(10#px) at: { 120#px, 6*20#px } color: rgb(0,255,0) border: #white;
+		draw circle(10#px) at: { 120#px, 7*20#px } color: rgb(20,235,0) border: #white;
+		draw square(8#px) at: { 120#px, 7*20#px } color: #yellow border: #white;
+		draw circle(10#px) at: { 120#px, 8*20#px } color: rgb(235,20,0) border: #white;
+		draw square(8#px) at: { 120#px, 8*20#px } color: #yellow border: #white;
+		draw circle(10#px) at: { 120#px, 9*20#px } color: rgb(255,0,0) border: #white;
+		draw triangle(8#px) at: { 120#px, 9*20#px } color: #black border: #white;
+		*/
+		
             }		
-		}	
+	}	
 	}
 }
 
