@@ -25,6 +25,7 @@ global{
 	float maxSpeedDist <- 5.5; // about 5.5  m/s for PEV (it can be changed accordingly to different robot specification)
 	graph roadNetwork;	
 	list<int> depositLocation;
+    file imageRFID <- file('./../images/rfid-tag.png') ;
 }
 
 
@@ -39,8 +40,11 @@ species controller{
 species pheromoneRoad {
 	float pheromone;
 	int lastUpdate;
-	aspect base {
+	aspect pheromoneLevel {
 		draw shape + 1 + int(pheromone) color: #black;
+	}
+	aspect base {
+		draw shape color: #black;
 	}
 }
 
@@ -107,6 +111,22 @@ species trashBin {
 				}		
 			}
 	}
+	
+	aspect realistic {
+		if(cycle<1){
+			  draw cylinder(5,10) - cylinder(2,10) color:color;
+			}else{
+				do update_color;
+				draw cylinder(5,10) - cylinder(2,10) color:color;	
+				if(trash>maxTrash){
+					draw triangle(10) color:#black;
+				}else{
+					if(trash>carriableTrashAmount){
+						draw triangle(10) color:#yellow;
+					}
+				}		
+			}
+	}
 }
 
 species tagRFID {
@@ -123,6 +143,10 @@ species tagRFID {
 	
 	aspect base {
 		draw circle(8+int(max(pheromones)/2)) color:#green;			
+	}
+	
+	aspect realistic{
+		draw imageRFID size:5#m;
 	}
 }
 
@@ -187,6 +211,16 @@ species robot skills:[moving] {
 	
 	aspect base {
 		draw circle(20) color: #cyan;
+		if lowBattery{
+			draw triangle(15) color: #purple;
+		}
+		if (carrying){
+			draw square(15) color: #yellow;
+		}
+	}
+	
+	aspect realistic {
+		draw obj_file("../includes/truck/truck.obj", 90::{-1,0,0}) at: location + {0,0,6} size: 50#m rotate: heading + 180;
 		if lowBattery{
 			draw triangle(15) color: #purple;
 		}

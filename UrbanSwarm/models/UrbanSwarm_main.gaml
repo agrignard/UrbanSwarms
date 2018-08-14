@@ -761,7 +761,7 @@ experiment selfOrganizedGarbageCollection type: gui {
 				species pheromoneRoad aspect: base ;
 				species trashBin aspect: base ;
 				species tagRFID aspect: base ;
-				species robot aspect: base ;
+				species robot aspect: realistic ;
 				species deposit aspect: base;	
 				species truck aspect: base ;
 		
