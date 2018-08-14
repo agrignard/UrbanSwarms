@@ -64,7 +64,6 @@ species trashBin {
     int group;
     
     reflex updateTrash{
-    	
     	if(decreaseTrashAmount){
     		if (type='litter'){
 	    		ask barrel closest_to self{
@@ -142,7 +141,7 @@ species tagRFID {
 	int distanceToDeposit;
 	
 	aspect base {
-		draw circle(8+int(max(pheromones)/2)) color:#green;			
+		draw circle(4+int(max(pheromones)/2)) color:#green;			
 	}
 	
 	aspect realistic{

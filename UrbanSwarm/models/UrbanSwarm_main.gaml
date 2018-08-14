@@ -363,7 +363,7 @@ global {
 
 	}
 	
-		action initPop{
+	action initPop{
 		  ask people {do die;}
 		  int nbPeopleToCreatePerBuilding;
 		  ask building where  (each.usage="R"){ 
@@ -389,111 +389,6 @@ global {
 		ask experiment {
 			do die;
 		}
-	}
-	
-	action find_means{
-		//Starts by removing all of the previous nodes
-		ask k_node{
-			do die;
-		}
-		
-		//Number of means that are used. Max is 5
-		map arg_k <- user_input("Number of K-means (Max is 5)", ["Number" :: 2]);
-		int k <- (arg_k at "Number");
-		
-		//Number of iterations the code goes through
-		map arg_iteration <- user_input("Number of Iterations", ["Number" :: 10]);
-		int iteration_count <- (arg_iteration at "Number");
-		
-		//Spawn radius from the mean
-		map arg_spawn_radius <- user_input("Spawn Radius from the mean", ["Number" :: 1000]);
-		int spawn_radius <- (arg_spawn_radius at "Number");
-		
-		list<barrel> city_barrels <- getVolpeBarrels();
-	    
-	    int mean_x <- 0;
-		int mean_y <- 0;
-	    
-	    loop times: k {
-		    int u <- 0;
-		    loop times: length(city_barrels) {
-		    	mean_x <- mean_x + city_barrels[u].location.x;
-		    	mean_y <- mean_y + city_barrels[u].location.y;
-		    		
-		    	u <- u + 1;
-		    }
-		    mean_x <- mean_x/length(city_barrels);
-		    mean_y <- mean_y/length(city_barrels);
-		}
-		
-		create species:k_node number:k with:(location:{rnd(mean_x - spawn_radius,mean_x + spawn_radius),rnd(mean_y - spawn_radius,mean_y + spawn_radius),0});
-		
-	    list<k_node> mean_nodes <- getKNodes();
-	    list<list<barrel>> clusters <- [[],[],[],[],[]];
-	    
-	    //Start the logic for the iterations
-	    list<rgb> colors <- [rgb(255,0,0),rgb(0,255,0),rgb(0,0,255),rgb(255,165,0),rgb(255,255,255)];
-	    loop times: iteration_count {
-		    int i <- 0;
-		    loop times: length(city_barrels) {
-		    	barrel b <- city_barrels at i;
-		    	
-		    	k_node min_node <- mean_nodes at 0;
-		    	float min_distance <- get_distance(min_node.location.x, min_node.location.y, b.location.x, b.location.y);
-		    	int u <- 0;
-		    	loop times: length(mean_nodes) {
-		    		k_node n <- mean_nodes at u;
-		    		float distance <- get_distance(n.location.x, n.location.y, b.location.x, b.location.y);
-		    		if (distance <= min_distance) {
-		    			min_distance <- distance;
-		    			min_node <- n;
-		    		}
-		    		u <- u + 1;
-		    	}
-		    	
-		    	int node_index <- mean_nodes index_of min_node;
-		    	ask b{
-		    		do set_color(colors at node_index);
-		    		clusters[node_index] <- clusters[node_index] + [b];
-		    	}
-		    	i <- i + 1;
-		    }
-		    
-		    i <- 0;
-		    loop times: k {
-		    	int u <- 0;
-		    	int mean_x <- 0;
-		    	int mean_y <- 0;
-		    	loop times: length(clusters[i]) {
-		    		mean_x <- mean_x + clusters[i][u].location.x;
-		    		mean_y <- mean_y + clusters[i][u].location.y;
-		    		
-		    		u <- u + 1;
-		    	}
-		    	ask mean_nodes[i] {
-		    		if (length(clusters[i]) != 0) {
-			    		location <- {mean_x/length(clusters[i]), mean_y/length(clusters[i])};
-		    		}
-		    	}
-		    	i <- i + 1;
-		    }
-		}
-		
-		int node_num <- 0;
-		ask k_node{
-			write "Node " + node_num + ":";
-			write location;
-			do set_color(colors at node_num);
-			node_num <- node_num + 1;
-		}
-	}
-	
-	list<k_node> getKNodes{
-		list<k_node> k_nodes <- [];
-		ask k_node{
-			k_nodes <- k_nodes + [self];
-		}
-		return k_nodes;
 	}
 	
 	action initGrid{
@@ -705,19 +600,6 @@ species barrel parent:Litter{
 	}
 }
 
-species k_node{
-	
-	rgb circle_color <- rgb(0,0,0);
-	
-	aspect base {
-		draw circle(120#m) color: circle_color border: rgb(255,255,255);
-	}
-		
-	action set_color(rgb new_color){
-		circle_color <- new_color;
-	}
-}
-
 
 experiment selfOrganizedGarbageCollection type: gui {
 	parameter "TruckOrRobots" var: truckOrRobots min: 0 max: 1 step: 1;
@@ -734,11 +616,11 @@ experiment selfOrganizedGarbageCollection type: gui {
 	parameter "carriableTrashAmount" var: carriableTrashAmount min: 1 max: 50 step: 5;
 	
 	init {
-		list<int> robotNumArray <- [20, 35, 50];
+		/*list<int> robotNumArray <- [20, 35, 50];
 		list<float> evaporationArray <- [0.05, 0.15, 0.3];
 		list<float> exploratoryRateArray <- [0.6, 0.75, 0.9];
 		list<int> carriableTrashAmountArray <- [6, 12, 18];
-		list<int> depositNumArray <- [2, 3, 5];
+		list<int> depositNumArray <- [2, 3, 5];*/
 	}
 	
 
@@ -755,13 +637,16 @@ experiment selfOrganizedGarbageCollection type: gui {
 				//data "Pheromone Amount" value: sum(list(tagRFID) collect mean(each.pheromones)) color:#green;
 			}
 		}
+		
+
+
 
 		display city_display type:opengl {
 				species building aspect: base ;
 				species pheromoneRoad aspect: base ;
 				species trashBin aspect: base ;
 				species tagRFID aspect: base ;
-				species robot aspect: realistic ;
+				species robot aspect: base ;
 				species deposit aspect: base;	
 				species truck aspect: base ;
 		
@@ -770,7 +655,7 @@ experiment selfOrganizedGarbageCollection type: gui {
 		  list<string> list_of_existing_species <- list<string>(["RFID","Deposit'","Robot","Robot[LowBattery]","Robot[Carrying]","TrashBin[Empty]","TrashBin[CarriableTrash]","TrashBin[AlmostFull]","TrashBin[Full]"]);
             loop i from: 0 to: length(list_of_existing_species) -1 {
               draw list_of_existing_species[i] at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 			
-		    } 				
+		  } 				
 				
 			draw circle(10#px) at: { 20#px, 20#px } color: #green border: #white;
 			draw circle(10#px) at: { 20#px, 2*20#px } color: #blue border: #white;
