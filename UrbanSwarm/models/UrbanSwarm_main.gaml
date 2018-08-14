@@ -162,7 +162,6 @@ global {
 	
 	init {
 		//---------------------------------------------------PERFORMANCE-----------------------------------------------
-		write "Main Init Start";
 		trashPerTime <- 0;
 		fullTrashBin <- 0;
 		randomID <- rnd (10000);
@@ -217,13 +216,10 @@ global {
 		// ---------------------------------------The Road Network----------------------------------------------
 		roadNetwork <- as_edge_graph(pheromoneRoad) ;					
 		
-		write "init Pairs";
 		// Next move to the shortest path between each point in the graph
 		matrix allPairs <- all_pairs_shortest_path (roadNetwork);	
-		write "init Pairs End";
 		
 		// --------------------------------------------Trash Bins--------------------------------------------
-		write "create trashBin";
 		create trashBin from: litter_shapefile{ 	
 			trash <- 0.0;
 			type <- "litter";
@@ -238,9 +234,7 @@ global {
 				decreaseTrashAmount<-false;
 			}
 		}
-		write "end trashBin";
-	
-	    write "K Means init";
+
 		// -------------------------------------Location of the Deposits----------------------------------------
 		//K-Means
 		//Create a list of list containing for each trashBin agent a list composed of its x and y values
@@ -287,19 +281,15 @@ global {
 			// Final Outcome K-means
 			depositLocation <- depositLocationKmeans;
 		
-		// ----------------------------------------------The Deposits---------------------------------------------
-		if(truckOrRobots=1){
+		// -------------------------------------------The Robots or the Truck -----------------------------------------
+		if (truckOrRobots=true){
 			loop i from: 0 to: length(depositLocation) - 1 {
 				create deposit{
 					location <- point(roadNetwork.vertices[depositLocation[i]]);
 					trash <- 0;
 					robots <- 0;
 				}
-			}		
-		}
-		
-		// -------------------------------------------The Robots or the Truck -----------------------------------------
-		if (truckOrRobots=1){
+			}
 			create robot number:robotNum{						
 				location <- point(one_of(roadNetwork.vertices)); 
 				target <- location; 
@@ -322,8 +312,6 @@ global {
 				currentRoad <- 1;	
 				}
 		}
-		write "K Means init end";
-		write "Create RFID";
 		// ----------------------------------The RFIDs tag on each road intersection------------------------
 		loop i from: 0 to: length(roadNetwork.vertices) - 1 {
 			create tagRFID{ 								
@@ -358,7 +346,6 @@ global {
 		
 			
 		create controller;
-		write "End Create RFID";
 		//---------------------------------------END SWARMBOT SPECIES-------------------------------------------------------------
 
 	}
@@ -541,7 +528,7 @@ species building schedules: [] {
      	draw shape color: rgb(50,50,50,125);
 	}
 	aspect realistic {	
-     	draw shape color: rgb(75,75,75) depth:depth;
+     	draw shape color: rgb(75,75,75,25) depth:depth*0.5;
 	}
 	aspect usage{
 		draw shape color: color_map[usage];
@@ -610,47 +597,63 @@ experiment selfOrganizedGarbageCollection type: gui {
 	parameter "EvaporatioRate" var: evaporation min: 0.001 max: 1.0 step: 0.001;
 	parameter "DiffusionRate" var: diffusion min: 0.001 max: 1.0 step: 0.001;
 	parameter "exploratoryRate" var: exploratoryRate min: 0.0 max: 0.05 step: 1.0;
-	parameter "rechargingTime" var: rechargingTime min: 0 max: 10 step: 1;
-	parameter "collisionAvoidanceTime" var: collisionAvoidanceTime min: 0 max: 10 step: 1;
 	parameter "maxTrashPerBin" var: maxTrash min: 1.0 max: 50.0 step: 1.0;
 	parameter "carriableTrashAmount" var: carriableTrashAmount min: 1 max: 50 step: 5;
-	
-	init {
-		/*list<int> robotNumArray <- [20, 35, 50];
-		list<float> evaporationArray <- [0.05, 0.15, 0.3];
-		list<float> exploratoryRateArray <- [0.6, 0.75, 0.9];
-		list<int> carriableTrashAmountArray <- [6, 12, 18];
-		list<int> depositNumArray <- [2, 3, 5];*/
+		
+	output {
+    display system_responsiveness{
+	  chart "Cleaning demand"{				
+	    data "Trash Amount" value: sum(list(trashBin) collect each.trash) color:#red;
+		data "Full Trash Bins" value: length (trashBin where (each.trash>maxTrash)) color:#purple;
+	  }
 	}
-	
+		
+	display city_display type:opengl {
+		species building aspect: base ;
+		species pheromoneRoad aspect: base ;
+		species trashBin aspect: base ;
+		species tagRFID aspect: base ;
+		species robot aspect: base ;
+		species deposit aspect: base;	
+		species truck aspect: base ;		
+	}	
+  }
+}
 
-	
+experiment selfOrganizedGarbageCollectionVisual type: gui {
+	parameter "TruckOrRobots" var: truckOrRobots min: 0 max: 1 step: 1;
+	parameter "NumberOfRobots" var: robotNum min: 1 max: 100 step: 2;
+	parameter "NumberOfDeposits" var: depositNum min: 1 max: 5 step: 1;
+	parameter "AdditionalTrashBin" var: additionalTrashBin min: 0 max: 100 step: 2;
+	parameter "PheromoneMarkIntensity" var: singlePheromoneMark min: 0.01 max: 0.01 step: 0.1;
+	parameter "EvaporatioRate" var: evaporation min: 0.001 max: 1.0 step: 0.001;
+	parameter "DiffusionRate" var: diffusion min: 0.001 max: 1.0 step: 0.001;
+	parameter "exploratoryRate" var: exploratoryRate min: 0.0 max: 0.05 step: 1.0;
+	parameter "maxTrashPerBin" var: maxTrash min: 1.0 max: 50.0 step: 1.0;
+	parameter "carriableTrashAmount" var: carriableTrashAmount min: 1 max: 50 step: 5;
+		
 	output {
 		
-		//----------------------------------------------------Performances to save-----------------------------------------------------
-
- 
-		display system_responsiveness{
-			chart "Cleaning demand"{				
-				data "Trash Amount" value: sum(list(trashBin) collect each.trash) color:#red;
-				data "Full Trash Bins" value: length (trashBin where (each.trash>maxTrash)) color:#purple;
-				//data "Pheromone Amount" value: sum(list(tagRFID) collect mean(each.pheromones)) color:#green;
-			}
+		display city_display type:opengl {	
+			species building aspect: base ;
+			species pheromoneRoad aspect: base ;
+			species trashBin aspect: base ;
+			species tagRFID aspect: base ;
+			species robot aspect: base ;
+			species deposit aspect: realistic;	
+			species truck aspect: base ;
+			
+			
+	   overlay position: { world.shape.width*0.85, world.shape.height*0.85 } size: { 240 #px, 680 #px } background: # black transparency: 1.0 border: #black 
+        {
+		  map<string,rgb> list_of_existing_species <- map<string,rgb>(["RFID"::#orange,"Deposit"::#blue,"Robot"::#cyan,"TrashBin"::#green]);
+            loop i from: 0 to: length(list_of_existing_species) -1 {
+              draw list_of_existing_species.keys[i] at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false;
+              draw circle(10#px) at: { 20#px, (i+1)*20#px } color: list_of_existing_species.values[i]  border: #white; 			
+		  } 				
 		}
 		
-
-
-
-		display city_display type:opengl {
-				species building aspect: base ;
-				species pheromoneRoad aspect: base ;
-				species trashBin aspect: base ;
-				species tagRFID aspect: base ;
-				species robot aspect: base ;
-				species deposit aspect: base;	
-				species truck aspect: base ;
-		
-		overlay position: { 5, 5 } size: { 240 #px, 680 #px } background: # black transparency: 1.0 border: #black 
+		/*overlay position: { 5, 5 } size: { 240 #px, 680 #px } background: # black transparency: 1.0 border: #black 
         {
 		  list<string> list_of_existing_species <- list<string>(["RFID","Deposit'","Robot","Robot[LowBattery]","Robot[Carrying]","TrashBin[Empty]","TrashBin[CarriableTrash]","TrashBin[AlmostFull]","TrashBin[Full]"]);
             loop i from: 0 to: length(list_of_existing_species) -1 {
@@ -672,8 +675,43 @@ experiment selfOrganizedGarbageCollection type: gui {
 			draw circle(10#px) at: { 20#px, 9*20#px } color: rgb(255,0,0) border: #white;
 			draw triangle(8#px) at: { 20#px, 9*20#px } color: #black border: #white;
 		
-		}		
+		}*/	
 	}	
+	    /*display city_display_3D type:opengl {	
+			species pheromoneRoad aspect: base ;
+			species trashBin aspect: realistic ;
+			species tagRFID aspect: realistic ;
+			species robot aspect: realistic ;
+			species deposit aspect: realistic;	
+			species truck aspect: base ;
+			species building aspect: realistic ;	
+		}
+	
+		display ThirdPersonn  type:opengl camera_interaction:false camera_pos:{int(first(robot).location.x),int(first(robot).location.y),250} 
+		    camera_look_pos:{int(first(robot).location.x),(first(robot).location.y),0} camera_up_vector:{0.0,-1.0,0.0} {
+		    species pheromoneRoad aspect: base ;
+			species trashBin aspect: realistic ;
+			species tagRFID aspect: realistic ;
+			species robot aspect: realistic ;
+			species deposit aspect: realistic;	
+			species truck aspect: base ;
+			species building aspect: realistic ;	
+		}
+		
+		//The facet camera_up_vector allows the definition of the vector on which the top of the camera point at, it has to be perpendicular to the look vector
+		display FirstPerson  type:opengl camera_interaction:false camera_pos:{int(first(robot).location.x),int(first(robot).location.y),10} 
+			camera_look_pos:{cos(first(robot).heading)*first(robot).speed+int(first(robot).location.x),
+			sin(first(robot).heading)*first(robot).speed+int(first(robot).location.y),10} 
+			camera_up_vector:{0.0,0.0,1.0} {	
+			species pheromoneRoad aspect: base ;
+			species trashBin aspect: realistic ;
+			species tagRFID aspect: realistic ;
+			species robot aspect: realistic ;
+			species deposit aspect: realistic;	
+			species truck aspect: base ;
+			species building aspect: realistic ;	
+		}*/
+	
 	}
 }
 

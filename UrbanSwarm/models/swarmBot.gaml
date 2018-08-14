@@ -9,14 +9,12 @@ import "./../models/UrbanSwarm_main.gaml"
 
 global{
 	//-----------------------------------------------------SwarmBot Parameters--------------------------------------------------
-	int truckOrRobots <- 1; //0= truck, 1 =robot
+	bool truckOrRobots <- true; //0= truck, 1 =robot
 	int robotNum <- 75;										
 	float singlePheromoneMark <- 0.5;
 	float evaporation <- 0.5;
 	float exploratoryRate <- 0.8;
 	float diffusion <- (1-exploratoryRate) * 0.5;	
-	int rechargingTime <- 0;
-	int collisionAvoidanceTime <- 0;
 	int additionalTrashBin <- 0;
 	float maxTrash <- 121.0;
 	int depositNum <- 3;
@@ -30,7 +28,8 @@ global{
 
 
 species controller{
- reflex performanceControl{
+ bool performanceController<-false;	
+ reflex performanceControl when:(performanceController=true){
  	trashPerTime <- sum(list(trashBin) collect each.trash);
  	fullTrashBin <- length (trashBin where (each.trash>maxTrash)); 	
 	save (string(seed) + "," + string(cycle) + "," + string(trashPerTime) + "," + string(fullTrashBin)) to: "./log/" + string(robotNum) + "-" + string(evaporation) + "-" + string(exploratoryRate) + "-" + string(carriableTrashAmount) + "-" + string(depositNum) + "perfHist" + string(randomID) + ".txt" type: "text" rewrite: false;	
@@ -53,7 +52,10 @@ species deposit{
 	int robots;
 	aspect base {
 			draw circle(25) color:#blue;		
-		}
+	}
+	aspect realistic{
+		draw cylinder(25,10)-cylinder(10,10) color:#blue;
+	}
 }
 
 species trashBin {	
@@ -97,10 +99,10 @@ species trashBin {
 	
 	aspect base {
 		if(cycle<1){
-			  draw circle(15) color:color;
+			  draw circle(10) color:color;
 			}else{
 				do update_color;
-				draw circle(15) color:color;	
+				draw circle(10) color:color;	
 				if(trash>maxTrash){
 					draw triangle(10) color:#black;
 				}else{
@@ -141,7 +143,7 @@ species tagRFID {
 	int distanceToDeposit;
 	
 	aspect base {
-		draw circle(4+int(max(pheromones)/2)) color:#green;			
+		draw circle(10+int(max(pheromones)/2)) color:#orange;			
 	}
 	
 	aspect realistic{
@@ -219,7 +221,8 @@ species robot skills:[moving] {
 	}
 	
 	aspect realistic {
-		draw obj_file("../includes/truck/truck.obj", 90::{-1,0,0}) at: location + {0,0,6} size: 50#m rotate: heading + 180;
+		draw pyramid(20) color: #cyan rotate: heading ;
+		//draw obj_file("../includes/truck/truck.obj", 90::{-1,0,0}) at: location + {0,0,6} size: 50#m rotate: heading + 180;
 		if lowBattery{
 			draw triangle(15) color: #purple;
 		}
