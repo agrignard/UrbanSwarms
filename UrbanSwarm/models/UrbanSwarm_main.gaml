@@ -162,6 +162,7 @@ global {
 	
 	init {
 		//---------------------------------------------------PERFORMANCE-----------------------------------------------
+		write "Main Init Start";
 		trashPerTime <- 0;
 		fullTrashBin <- 0;
 		randomID <- rnd (10000);
@@ -213,29 +214,20 @@ global {
 			do die;
 		}	
 					
-		
 		// ---------------------------------------The Road Network----------------------------------------------
 		roadNetwork <- as_edge_graph(pheromoneRoad) ;					
 		
+		write "init Pairs";
 		// Next move to the shortest path between each point in the graph
-		matrix allPairs <- all_pairs_shortest_path (roadNetwork);
-		
-		
+		matrix allPairs <- all_pairs_shortest_path (roadNetwork);	
+		write "init Pairs End";
 		
 		// --------------------------------------------Trash Bins--------------------------------------------
-		
+		write "create trashBin";
 		create trashBin from: litter_shapefile{ 	
 			trash <- 0.0;
 			type <- "litter";
-			decreaseTrashAmount<-false;
-			// Delete trashBin outside the area of interest 		
-			float Xmax <- (list(pheromoneRoad) max_of (each.location.x));
-			float Ymax <- (list(pheromoneRoad) max_of (each.location.y));
-			float Xmin <- (list(pheromoneRoad) min_of (each.location.x));
-			float Ymin <- (list(pheromoneRoad) min_of (each.location.y));
-			if !((location.x between(Xmin-5,Xmax+5)) and (location.y between(Ymin-5,Ymax+5))){
-				do die;
-				}							
+			decreaseTrashAmount<-false;							
 		}
 		
 		loop i from: 0 to: length(amenityBin)-1{
@@ -246,8 +238,9 @@ global {
 				decreaseTrashAmount<-false;
 			}
 		}
-		
+		write "end trashBin";
 	
+	    write "K Means init";
 		// -------------------------------------Location of the Deposits----------------------------------------
 		//K-Means
 		//Create a list of list containing for each trashBin agent a list composed of its x and y values
@@ -329,7 +322,8 @@ global {
 				currentRoad <- 1;	
 				}
 		}
-		
+		write "K Means init end";
+		write "Create RFID";
 		// ----------------------------------The RFIDs tag on each road intersection------------------------
 		loop i from: 0 to: length(roadNetwork.vertices) - 1 {
 			create tagRFID{ 								
@@ -364,7 +358,7 @@ global {
 		
 			
 		create controller;
-		
+		write "End Create RFID";
 		//---------------------------------------END SWARMBOT SPECIES-------------------------------------------------------------
 
 	}
@@ -398,7 +392,6 @@ global {
 	}
 	
 	action find_means{
-		
 		//Starts by removing all of the previous nodes
 		ask k_node{
 			do die;
@@ -773,36 +766,28 @@ experiment selfOrganizedGarbageCollection type: gui {
 				species truck aspect: base ;
 		
 		overlay position: { 5, 5 } size: { 240 #px, 680 #px } background: # black transparency: 1.0 border: #black 
-            {
-            	/*list<string> list_of_existing_species <- list<string>(['species1', 'species2']);
-                loop i from: 0 to: length(list_of_existing_species) -1 {
-                	draw square(10#px) at: { 20#px, (i+1)*20#px } color: #red border: #white;
-                    draw "species"+ i at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 	
-                } */
-		
-		
-		list<string> list_of_existing_species <- list<string>(["RFID","Deposit'","Robot","Robot[LowBattery]","Robot[Carrying]","TrashBin[Empty]","TrashBin[CarriableTrash]","TrashBin[AlmostFull]","TrashBin[Full]"]);
-                loop i from: 0 to: length(list_of_existing_species) -1 {
-                    draw list_of_existing_species[i] at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 			
-		} 				
+        {
+		  list<string> list_of_existing_species <- list<string>(["RFID","Deposit'","Robot","Robot[LowBattery]","Robot[Carrying]","TrashBin[Empty]","TrashBin[CarriableTrash]","TrashBin[AlmostFull]","TrashBin[Full]"]);
+            loop i from: 0 to: length(list_of_existing_species) -1 {
+              draw list_of_existing_species[i] at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 			
+		    } 				
 				
-		draw circle(10#px) at: { 20#px, 20#px } color: #green border: #white;
-		draw circle(10#px) at: { 20#px, 2*20#px } color: #blue border: #white;
-		draw circle(10#px) at: { 20#px, 3*20#px } color: #cyan border: #white;
-		draw circle(10#px) at: { 20#px, 4*20#px } color: #cyan border: #white;
-		draw triangle(8#px) at: { 20#px, 4*20#px } color: #purple border: #white;
-		draw circle(10#px) at: { 20#px, 5*20#px } color: #cyan border: #white;
-		draw square(8#px) at: { 20#px, 5*20#px } color: #yellow border: #white;
-		draw circle(10#px) at: { 20#px, 6*20#px } color: rgb(0,255,0) border: #white;
-		draw circle(10#px) at: { 20#px, 7*20#px } color: rgb(20,235,0) border: #white;
-		draw square(8#px) at: { 20#px, 7*20#px } color: #yellow border: #white;
-		draw circle(10#px) at: { 20#px, 8*20#px } color: rgb(235,20,0) border: #white;
-		draw square(8#px) at: { 20#px, 8*20#px } color: #yellow border: #white;
-		draw circle(10#px) at: { 20#px, 9*20#px } color: rgb(255,0,0) border: #white;
-		draw triangle(8#px) at: { 20#px, 9*20#px } color: #black border: #white;
+			draw circle(10#px) at: { 20#px, 20#px } color: #green border: #white;
+			draw circle(10#px) at: { 20#px, 2*20#px } color: #blue border: #white;
+			draw circle(10#px) at: { 20#px, 3*20#px } color: #cyan border: #white;
+			draw circle(10#px) at: { 20#px, 4*20#px } color: #cyan border: #white;
+			draw triangle(8#px) at: { 20#px, 4*20#px } color: #purple border: #white;
+			draw circle(10#px) at: { 20#px, 5*20#px } color: #cyan border: #white;
+			draw square(8#px) at: { 20#px, 5*20#px } color: #yellow border: #white;
+			draw circle(10#px) at: { 20#px, 6*20#px } color: rgb(0,255,0) border: #white;
+			draw circle(10#px) at: { 20#px, 7*20#px } color: rgb(20,235,0) border: #white;
+			draw square(8#px) at: { 20#px, 7*20#px } color: #yellow border: #white;
+			draw circle(10#px) at: { 20#px, 8*20#px } color: rgb(235,20,0) border: #white;
+			draw square(8#px) at: { 20#px, 8*20#px } color: #yellow border: #white;
+			draw circle(10#px) at: { 20#px, 9*20#px } color: rgb(255,0,0) border: #white;
+			draw triangle(8#px) at: { 20#px, 9*20#px } color: #black border: #white;
 		
-		
-            }		
+		}		
 	}	
 	}
 }

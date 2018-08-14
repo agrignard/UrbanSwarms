@@ -39,7 +39,6 @@ species amenity parent:building {
 		ask a {
 			self.location <- myself.location;
 		}
-		write(a.location);
 	}
 	
 	//This one fills the trash bins up around it
@@ -94,14 +93,7 @@ species amenity parent:building {
 		}
 	}
 
-	aspect onScreen {
-		
-		/*
-		ask barrel at_distance(amenity_radius){
-			draw polyline([self.location,myself.location]) color:#white;
-		}
-		*/
-		
+	aspect onScreen {		
 		if(fromGrid){
 			if(color!=nil){
 			  draw shape rotated_by -angle color: rgb(color.red, color.green, color.blue,75);	
