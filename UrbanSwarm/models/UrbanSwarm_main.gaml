@@ -774,16 +774,16 @@ experiment selfOrganizedGarbageCollection type: gui {
 		
 		overlay position: { 5, 5 } size: { 240 #px, 680 #px } background: # black transparency: 1.0 border: #black 
             {
-            	list<string> list_of_existing_species <- list<string>(['species1', 'species2']);
+            	/*list<string> list_of_existing_species <- list<string>(['species1', 'species2']);
                 loop i from: 0 to: length(list_of_existing_species) -1 {
                 	draw square(10#px) at: { 20#px, (i+1)*20#px } color: #red border: #white;
                     draw "species"+ i at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 	
-                } 
+                } */
 		
-		/*
-		list<string> list_of_existing_species <- list<string>(['RFID','Deposit','Robot,'Robot[LowBattery]','Robot[Carrying]','TrashBin[Empty]','TrashBin[CarriableTrash]','TrashBin[AlmostFull]','TrashBin[Full]']);
+		
+		list<string> list_of_existing_species <- list<string>(["RFID","Deposit'","Robot","Robot[LowBattery]","Robot[Carrying]","TrashBin[Empty]","TrashBin[CarriableTrash]","TrashBin[AlmostFull]","TrashBin[Full]"]);
                 loop i from: 0 to: length(list_of_existing_species) -1 {
-                    draw "species "+ i at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 			
+                    draw list_of_existing_species[i] at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 			
 		} 				
 				
 		draw circle(10#px) at: { 20#px, 20#px } color: #green border: #white;
@@ -800,7 +800,7 @@ experiment selfOrganizedGarbageCollection type: gui {
 		draw square(8#px) at: { 20#px, 8*20#px } color: #yellow border: #white;
 		draw circle(10#px) at: { 20#px, 9*20#px } color: rgb(255,0,0) border: #white;
 		draw triangle(8#px) at: { 20#px, 9*20#px } color: #black border: #white;
-		*/
+		
 		
             }		
 	}	
