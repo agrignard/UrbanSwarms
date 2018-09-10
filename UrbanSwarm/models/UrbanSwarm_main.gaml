@@ -11,6 +11,9 @@ import "./../models/LitterBins.gaml"
 import "./../models/swarmBot.gaml"
 
 global {
+	
+    //kml kml_export;
+    date starting_date <- #now;
 	//---------------------------------------------------------Performance Measures-----------------------------------------------------------------------------
 	int trashPerTime;
 	int fullTrashBin;
@@ -223,7 +226,8 @@ global {
 		create trashBin from: litter_shapefile{ 	
 			trash <- 0.0;
 			type <- "litter";
-			decreaseTrashAmount<-false;							
+			decreaseTrashAmount<-false;
+			shape<-circle(10);							
 		}
 		
 		loop i from: 0 to: length(amenityBin)-1{
@@ -303,12 +307,12 @@ global {
 				speedDist <- maxSpeedDist;
 			}		
 		}else{
-			create truck number:1{	
-				location <- point(roadNetwork.vertices[0]);  
-				target <- point(roadNetwork.vertices[1]); 
+			create truck number:robotNum{	
+				location <- one_of(road);  
+				//target <- point(roadNetwork.vertices[1]); 
 				source <- location;	
-				speedDist <- 45;  
-				timeToStart <- 4320;
+				speedDist <- 1;  
+				timeToStart <- 0;
 				currentRoad <- 1;	
 				}
 		}
@@ -474,6 +478,39 @@ global {
 			do stop_experiment;
 		}		
 	}
+	
+   /* reflex add_static_objects_to_kml when:cycle=1{
+		
+		ask road {
+			//add a geometry to the kml : add_geometry(kml, geometry, line width, border color, color)
+			kml_export <- kml_export add_geometry (shape,1.0,#black,color);	
+			
+			//it is also possible to specify the begin date (current_date by default) and the ending date (current_date + step by default)
+			//kml_export <- kml_export add_geometry (shape,2.0,#black,color, #now, #now plus_hours 1);	
+		}
+		ask building {
+			//add an icon to the kml: add_icon(kml,location,scale,orientation,file) ... like for add_geometry, it is also possible to specify the begin/end date
+			kml_export <- kml_export add_geometry (shape,1.0,color,color);
+		}
+		
+		ask trashBin{
+			kml_export <- kml_export add_geometry (circle(10),1.0,color,color);
+		}
+				
+
+		
+	}
+	
+	reflex add_dynamic_objects_to_kml{
+		ask truck{
+			kml_export <- kml_export add_geometry (circle(10),1.0,#red,#red, current_date, current_date + 30);
+		}
+	}
+	
+	reflex end_sim when: cycle = 100 {
+		// export the kml to a kmz/kml file
+		//save kml_export to:"result.kmz" type:"kmz";
+	}*/
 		
 	action generateSquarePop(int nb, string _scale){
 		create people number:nb	{
@@ -525,10 +562,13 @@ species building schedules: [] {
 	}
 	
 	aspect base {	
-     	draw shape color: rgb(50,50,50,125);
+     	draw shape color: rgb(255,255,255);
+	}
+	aspect borderflat {	
+     	draw shape color: rgb(255,255,255) empty:true border:rgb(30,30,50);
 	}
 	aspect realistic {	
-     	draw shape color: rgb(75,75,75,25) depth:depth*0.5;
+     	draw shape color: rgb(255,255,255) depth:depth*0.25;
 	}
 	aspect usage{
 		draw shape color: color_map[usage];
@@ -558,7 +598,7 @@ species building schedules: [] {
 species road  schedules: []{
 	rgb color <- #red ;
 	aspect base {
-		draw shape color: rgb(125,125,125);
+		draw shape color:rgb(50,50,80);
 	}
 }
 
@@ -587,42 +627,7 @@ species barrel parent:Litter{
 	}
 }
 
-
-experiment selfOrganizedGarbageCollection type: gui {
-	parameter "TruckOrRobots" var: truckOrRobots min: 0 max: 1 step: 1;
-	parameter "NumberOfRobots" var: robotNum min: 1 max: 100 step: 2;
-	parameter "NumberOfDeposits" var: depositNum min: 1 max: 5 step: 1;
-	parameter "AdditionalTrashBin" var: additionalTrashBin min: 0 max: 100 step: 2;
-	parameter "PheromoneMarkIntensity" var: singlePheromoneMark min: 0.01 max: 0.01 step: 0.1;
-	parameter "EvaporatioRate" var: evaporation min: 0.001 max: 1.0 step: 0.001;
-	parameter "DiffusionRate" var: diffusion min: 0.001 max: 1.0 step: 0.001;
-	parameter "exploratoryRate" var: exploratoryRate min: 0.0 max: 0.05 step: 1.0;
-	parameter "maxTrashPerBin" var: maxTrash min: 1.0 max: 50.0 step: 1.0;
-	parameter "carriableTrashAmount" var: carriableTrashAmount min: 1 max: 50 step: 5;
-		
-	output {
-    display system_responsiveness{
-	  chart "Cleaning demand"{				
-	    data "Trash Amount" value: sum(list(trashBin) collect each.trash) color:#red;
-		data "Full Trash Bins" value: length (trashBin where (each.trash>maxTrash)) color:#purple;
-	  }
-	}
-		
-	display city_display type:opengl {
-		species building aspect: base ;
-		species pheromoneRoad aspect: base ;
-		species trashBin aspect: base ;
-		species tagRFID aspect: base ;
-		species robot aspect: base ;
-		species deposit aspect: base;	
-		species truck aspect: base ;		
-	}	
-  }
-}
-
 experiment selfOrganizedGarbageCollectionVisual type: gui {
-	parameter "TruckOrRobots" var: truckOrRobots min: 0 max: 1 step: 1;
-	parameter "NumberOfRobots" var: robotNum min: 1 max: 100 step: 2;
 	parameter "NumberOfDeposits" var: depositNum min: 1 max: 5 step: 1;
 	parameter "AdditionalTrashBin" var: additionalTrashBin min: 0 max: 100 step: 2;
 	parameter "PheromoneMarkIntensity" var: singlePheromoneMark min: 0.01 max: 0.01 step: 0.1;
@@ -633,85 +638,29 @@ experiment selfOrganizedGarbageCollectionVisual type: gui {
 	parameter "carriableTrashAmount" var: carriableTrashAmount min: 1 max: 50 step: 5;
 		
 	output {
-		
-		display city_display type:opengl {	
-			species building aspect: base ;
-			species pheromoneRoad aspect: base ;
-			species trashBin aspect: base ;
-			species tagRFID aspect: base ;
-			species robot aspect: base ;
-			species deposit aspect: realistic;	
-			species truck aspect: base ;
+		display city_display type:opengl draw_env:false autosave:false background:rgb(0,0,15) {	
 			
 			
-	   overlay position: { world.shape.width*0.85, world.shape.height*0.85 } size: { 240 #px, 680 #px } background: # black transparency: 1.0 border: #black 
-        {
-		  map<string,rgb> list_of_existing_species <- map<string,rgb>(["RFID"::#orange,"Deposit"::#blue,"Robot"::#cyan,"TrashBin"::#green]);
-            loop i from: 0 to: length(list_of_existing_species) -1 {
-              draw list_of_existing_species.keys[i] at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false;
-              draw circle(10#px) at: { 20#px, (i+1)*20#px } color: list_of_existing_species.values[i]  border: #white; 			
-		  } 				
-		}
-		
-		/*overlay position: { 5, 5 } size: { 240 #px, 680 #px } background: # black transparency: 1.0 border: #black 
-        {
-		  list<string> list_of_existing_species <- list<string>(["RFID","Deposit'","Robot","Robot[LowBattery]","Robot[Carrying]","TrashBin[Empty]","TrashBin[CarriableTrash]","TrashBin[AlmostFull]","TrashBin[Full]"]);
-            loop i from: 0 to: length(list_of_existing_species) -1 {
-              draw list_of_existing_species[i] at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false; 			
-		  } 				
-				
-			draw circle(10#px) at: { 20#px, 20#px } color: #green border: #white;
-			draw circle(10#px) at: { 20#px, 2*20#px } color: #blue border: #white;
-			draw circle(10#px) at: { 20#px, 3*20#px } color: #cyan border: #white;
-			draw circle(10#px) at: { 20#px, 4*20#px } color: #cyan border: #white;
-			draw triangle(8#px) at: { 20#px, 4*20#px } color: #purple border: #white;
-			draw circle(10#px) at: { 20#px, 5*20#px } color: #cyan border: #white;
-			draw square(8#px) at: { 20#px, 5*20#px } color: #yellow border: #white;
-			draw circle(10#px) at: { 20#px, 6*20#px } color: rgb(0,255,0) border: #white;
-			draw circle(10#px) at: { 20#px, 7*20#px } color: rgb(20,235,0) border: #white;
-			draw square(8#px) at: { 20#px, 7*20#px } color: #yellow border: #white;
-			draw circle(10#px) at: { 20#px, 8*20#px } color: rgb(235,20,0) border: #white;
-			draw square(8#px) at: { 20#px, 8*20#px } color: #yellow border: #white;
-			draw circle(10#px) at: { 20#px, 9*20#px } color: rgb(255,0,0) border: #white;
-			draw triangle(8#px) at: { 20#px, 9*20#px } color: #black border: #white;
-		
-		}*/	
-	}	
-	    /*display city_display_3D type:opengl {	
-			species pheromoneRoad aspect: base ;
-			species trashBin aspect: realistic ;
+			species road aspect:base refresh:false;
+			species building aspect: borderflat refresh:false;
+			species pheromoneRoad aspect: pheromoneLevel ;
+			species people aspect:scale transparency:0.5;
 			species tagRFID aspect: realistic ;
-			species robot aspect: realistic ;
-			species deposit aspect: realistic;	
-			species truck aspect: base ;
-			species building aspect: realistic ;	
-		}
-	
-		display ThirdPersonn  type:opengl camera_interaction:false camera_pos:{int(first(robot).location.x),int(first(robot).location.y),250} 
-		    camera_look_pos:{int(first(robot).location.x),(first(robot).location.y),0} camera_up_vector:{0.0,-1.0,0.0} {
-		    species pheromoneRoad aspect: base ;
 			species trashBin aspect: realistic ;
-			species tagRFID aspect: realistic ;
-			species robot aspect: realistic ;
-			species deposit aspect: realistic;	
-			species truck aspect: base ;
-			species building aspect: realistic ;	
+			species robot aspect: realistic trace:traceLength fading:true;
+			species deposit aspect: realistic transparency:0.8;	
+			//species truck aspect: base ;
+			
+			
+	   		overlay position: { world.shape.width*0.85, world.shape.height*0.85 } size: { 240 #px, 680 #px } background: # white transparency: 1.0 border: #black 
+        	{
+		  		map<string,rgb> list_of_existing_species <- map<string,rgb>(["RFID"::#green,"Deposit"::#blue,"Robot"::#cyan,"TrashBin"::#orange]);
+            	loop i from: 0 to: length(list_of_existing_species) -1 {
+             	//draw list_of_existing_species.keys[i] at: { 40#px, (i+1)*20#px } color: #black font: font("Helvetica", 18, #bold) perspective:false;
+              	//draw circle(10#px) at: { 20#px, (i+1)*20#px } color: list_of_existing_species.values[i]  border: #white; 			
+		  	} 				
 		}
-		
-		//The facet camera_up_vector allows the definition of the vector on which the top of the camera point at, it has to be perpendicular to the look vector
-		display FirstPerson  type:opengl camera_interaction:false camera_pos:{int(first(robot).location.x),int(first(robot).location.y),10} 
-			camera_look_pos:{cos(first(robot).heading)*first(robot).speed+int(first(robot).location.x),
-			sin(first(robot).heading)*first(robot).speed+int(first(robot).location.y),10} 
-			camera_up_vector:{0.0,0.0,1.0} {	
-			species pheromoneRoad aspect: base ;
-			species trashBin aspect: realistic ;
-			species tagRFID aspect: realistic ;
-			species robot aspect: realistic ;
-			species deposit aspect: realistic;	
-			species truck aspect: base ;
-			species building aspect: realistic ;	
-		}*/
-	
+    	}	
 	}
 }
 

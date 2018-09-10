@@ -9,8 +9,7 @@ import "./../models/UrbanSwarm_main.gaml"
 
 global{
 	//-----------------------------------------------------SwarmBot Parameters--------------------------------------------------
-	bool truckOrRobots <- true; //0= truck, 1 =robot
-	int robotNum <- 75;										
+								
 	float singlePheromoneMark <- 0.5;
 	float evaporation <- 0.5;
 	float exploratoryRate <- 0.8;
@@ -20,7 +19,7 @@ global{
 	int depositNum <- 3;
 	int carriableTrashAmount <- 15;		
 	int maxBatteryLife <- 720; // 2 h for PEV considering each cycle as 10 seconds in the real world
-	float maxSpeedDist <- 5.5; // about 5.5  m/s for PEV (it can be changed accordingly to different robot specification)
+	float maxSpeedDist <- 2.5; // about 5.5  m/s for PEV (it can be changed accordingly to different robot specification)
 	graph roadNetwork;	
 	list<int> depositLocation;
     file imageRFID <- file('./../images/rfid-tag.png') ;
@@ -40,7 +39,7 @@ species pheromoneRoad {
 	float pheromone;
 	int lastUpdate;
 	aspect pheromoneLevel {
-		draw shape + 1 + int(pheromone) color: #black;
+		draw shape  color: rgb(125,125,150);
 	}
 	aspect base {
 		draw shape color: #black;
@@ -54,7 +53,8 @@ species deposit{
 			draw circle(25) color:#blue;		
 	}
 	aspect realistic{
-		draw cylinder(25,10)-cylinder(10,10) color:#blue;
+		//draw cylinder(50,50)-cylinder(20,50) color:rgb(107,171,158);
+		draw circle(50) color:rgb(107,171,158);
 	}
 }
 
@@ -63,7 +63,7 @@ species trashBin {
     bool decreaseTrashAmount;
     string type;
     rgb color;
-    int group;
+    int group;  
     
     reflex updateTrash{
     	if(decreaseTrashAmount){
@@ -94,15 +94,15 @@ species trashBin {
 	action update_color {
 		int red_color <- int(0.0 + (255.0/float(maxTrash))*trash);
 		int green_color <- int(255.0 - (255.0/float(maxTrash))*trash);
-		color <- rgb(red_color,green_color,0);
+		color <- rgb(red_color,green_color,100);
 	}
 	
-	aspect base {
+	aspect realistic3D {
 		if(cycle<1){
-			  draw circle(10) color:color;
+			  draw cylinder(5+trash/100,10) - cylinder(2,10) color:color;
 			}else{
 				do update_color;
-				draw circle(10) color:color;	
+				draw cylinder(5,10) - cylinder(4,10) color:color;	
 				if(trash>maxTrash){
 					draw triangle(10) color:#black;
 				}else{
@@ -112,18 +112,17 @@ species trashBin {
 				}		
 			}
 	}
-	
 	aspect realistic {
 		if(cycle<1){
-			  draw cylinder(5,10) - cylinder(2,10) color:color;
+			  draw circle(5+trash/100) color:color;
 			}else{
 				do update_color;
-				draw cylinder(5,10) - cylinder(2,10) color:color;	
+				draw circle(5+trash/100) color:color;	
 				if(trash>maxTrash){
-					draw triangle(10) color:#black;
+					draw square(2) color:#black;
 				}else{
 					if(trash>carriableTrashAmount){
-						draw triangle(10) color:#yellow;
+						draw square(2) color:#yellow;
 					}
 				}		
 			}
@@ -142,12 +141,9 @@ species tagRFID {
 	geometry towardDeposit;
 	int distanceToDeposit;
 	
-	aspect base {
-		draw circle(10+int(max(pheromones)/2)) color:#orange;			
-	}
-	
 	aspect realistic{
-		draw imageRFID size:5#m;
+		draw circle(1+100*float(max(pheromones)/2)) color:rgb(107,171,158);
+		//draw imageRFID size:5#m;
 	}
 }
 
@@ -164,31 +160,19 @@ species truck skills:[moving] {
 	int currentRoad;
 	
 	reflex searching when: (cycle > timeToStart){
-	my_path <- self goto (on:roadNetwork, target:target, speed:speedDist, return_path: true);		
-		
 		if (target != location) { 
-			list<trashBin> closeTrashBin <- trashBin at_distance 50;
+		do wander on:road_graph;
+		list<trashBin> closeTrashBin <- trashBin at_distance 50;
 	
 			ask closeTrashBin{ 	
 						self.trash <- 0;	
 						self.decreaseTrashAmount <- true;	
-			}						
-		}	
-		else{
-			if(currentRoad<length(roadNetwork.vertices)-1){
-				currentRoad <- currentRoad + 1;
-				target <- point(roadNetwork.vertices[currentRoad]);
-				source <- location;	
-			}
-			else{
-			currentRoad <- currentRoad;
 			}	
-			write "tick " + cycle + " road " + currentRoad;		
 		}
 	}
 	
 	aspect base {
-		draw circle(30) color: #black;
+		draw circle(10) color: rgb(225,225,255);
 	}
 }
 
@@ -209,25 +193,14 @@ species robot skills:[moving] {
 	bool lowBattery;	
 	bool carrying;
 	
-	
-	aspect base {
-		draw circle(20) color: #cyan;
+
+    aspect realistic {
+		draw triangle(15)  color: rgb(25*1.1,25*1.6,200) rotate: heading + 90;
 		if lowBattery{
-			draw triangle(15) color: #purple;
+			draw triangle(15) color: #darkred rotate: heading + 90;
 		}
 		if (carrying){
-			draw square(15) color: #yellow;
-		}
-	}
-	
-	aspect realistic {
-		draw pyramid(20) color: #cyan rotate: heading ;
-		//draw obj_file("../includes/truck/truck.obj", 90::{-1,0,0}) at: location + {0,0,6} size: 50#m rotate: heading + 180;
-		if lowBattery{
-			draw triangle(15) color: #purple;
-		}
-		if (carrying){
-			draw square(15) color: #yellow;
+			draw triangle(15) color: rgb(175*1.1,175*1.6,200) rotate: heading + 90;
 		}
 	}
 

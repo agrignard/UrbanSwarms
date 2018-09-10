@@ -11,6 +11,9 @@ model Parameters
 global{
 	//-------------------------------------------------------------My Parameters----------------------------------------------------------------------------------
 	
+	bool truckOrRobots <- true parameter: "Truck or Robot: " category: "Initial"; //0= truck, 1 =robot
+	int robotNum <- 25 min: 1 max: 100 parameter: "Nb Vehicle:" category: "Initial";		
+	
 	//Makes the cycles longer
 	float minimum_cycle_duration <- 0.02;
 	
@@ -18,7 +21,7 @@ global{
 	float step <- 10 #sec;
 	
 	//Time offset for when to start the day
-	int time_offset <- 0 parameter: "Start Time:" category: "Initial";
+	int time_offset <- 6 parameter: "Start Time:" category: "Initial";
 	
 	//Whether or not to stop the simulation after a certain number of days
 	bool stop_simulation <- true parameter: "Stop Simulation: " category: "Initial";
@@ -61,6 +64,9 @@ global{
 	
 	//Changes how trash is generated in amenities
 	int option <- 2 parameter: "Amenity Generation Type (1 or 2): " category: "Amenity";
+	
+	//trace of the display
+	int traceLength<-5  min: 1 max: 100 parameter: "trace value:" category: "Visualization";
 	
 }
 
