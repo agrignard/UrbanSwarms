@@ -8,12 +8,15 @@
 model TangibleUrbanSwarm
 
 global {
+	geometry shape<-rectangle(150,100);
 	init {    
 		create people number: 10;
+		
 	} 
 }
 
-grid cell width: 5 height: 5  {
+grid cell cell_width:50 cell_height:50{
+	
 	rgb color <-  #white;
 } 
 	   
